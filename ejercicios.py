@@ -1,8 +1,3 @@
-#Condicionales
-
-
-#Menu de opciones
-
 
 
 print("Ejercicio 1")
