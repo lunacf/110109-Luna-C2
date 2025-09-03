@@ -47,3 +47,69 @@ import math
 def area_cuadrado(lado):
     return lado * lado
 
+def rectangulo(largo, ancho):
+    area = largo * ancho
+    perimetro = 2 * (largo + ancho)
+    return area, perimetro
+
+def triangulo(base, altura, lado1, lado2, lado3):
+    area = (base * altura) / 2
+    perimetro = lado1 + lado2 + lado3
+    return area, perimetro  
+
+def circulo(radio):
+    area = math.pi * radio * radio
+    perimetro = 2 * math.pi * radio
+    return area, perimetro
+
+# Funciones de entrada
+def pido_valores_entrada(entrada):
+    entrada = float(input("Ingrese el valor: "))
+    return entrada
+
+# Funciones de salida
+def mostrar_resultados_figura(figura, area, perimetro):
+    print(f"El área del {figura} es: {area:.2f}")
+    print(f"El perímetro del {figura} es: {perimetro:.2f}") 
+
+# Programa principal
+print("Calculadora geométrica")
+print("Elija una figura geométrica:")   
+
+# Menu
+print("1. Cuadrado")
+print("2. Rectángulo")
+print("3. Triángulo")
+print("4. Círculo")
+
+opcion = input("Ingrese número de las opciones (1-4):  ")
+
+match opcion:
+    case "1":
+        print("Ha elegido un cuadrado.")
+        lado = pido_valores_entrada(0)
+        area = area_cuadrado(lado)
+        perimetro = 4 * lado
+        mostrar_resultados_figura("cuadrado", area, perimetro)
+    case "2":
+        print("Ha elegido un rectángulo.")
+        largo = pido_valores_entrada(0)
+        ancho = pido_valores_entrada(0)
+        area, perimetro = rectangulo(largo, ancho)
+        mostrar_resultados_figura("rectángulo", area, perimetro)
+    case "3":
+        print("Ha elegido un triángulo.")
+        base = pido_valores_entrada(0)
+        altura = pido_valores_entrada(0)
+        lado1 = pido_valores_entrada(0)
+        lado2 = pido_valores_entrada(0)
+        lado3 = pido_valores_entrada(0)
+        area, perimetro = triangulo(base, altura, lado1, lado2, lado3)
+        mostrar_resultados_figura("triángulo", area, perimetro)
+    case "4":
+        print("Ha elegido un círculo.")
+        radio = pido_valores_entrada(0)
+        area, perimetro = circulo(radio)
+        mostrar_resultados_figura("circulo", area, perimetro)
+    case _:
+        print("Opción no válida. Por favor, elija una opción del 1 al 4.")
