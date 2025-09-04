@@ -1,3 +1,4 @@
+
 # Funciones
 # Toda funcion que da None como resultado no retorna nada
 
@@ -113,3 +114,16 @@ match opcion:
         mostrar_resultados_figura("circulo", area, perimetro)
     case _:
         print("Opción no válida. Por favor, elija una opción del 1 al 4.")
+
+"""
+Gestor de notas de alumnos
+
+Desarrollo de un programa que pida 3 notas a un alumno, calcule promedio
+y verifique si aprobo o desaprobo (promedio >= 6).
+
+Debe guardar los resultados en un diccionario {nombre: promedio}
+y permitir consultar las notas de cualquier alumno por su nombre.
+
+"""
+""" """
+
