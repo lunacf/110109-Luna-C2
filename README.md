@@ -7,5 +7,5 @@ Primer repositorio programación C2 - 110109
 - [Semana 3](./ejerciciosDeLaSemana/Semana3)
 - [Semana 4](./ejerciciosDeLaSemana/Semana4)
 - [Semana 5](./ejerciciosDeLaSemana/Semana5)
-- [Semana 7(.ejerciciosDeLaSemana/Semana7)
+- [Semana 7](.ejerciciosDeLaSemana/Semana7)
   
