@@ -1,16 +1,18 @@
 
+import hashlib
 import os
 import json
+import re
 from colorama import Fore, Style, init #colores
 
 init(autoreset=True)
 
-archivo = "archivo.txt"
+archivo = "archivos.txt"
 
 def cargar_usuarios() -> dict:
     if not os.path.exists(archivo):
         return {}
-    with open(archivo, 'r', enconding = 'utf-8') as f:
+    with open(archivo, 'r', encoding='utf-8') as f:
         try:
             return json.load(f)
         except json.JSONDecodeError:
@@ -44,16 +46,22 @@ def registrarse(usuarios: dict) -> None:
                 print(Fore.RED + "❌ La contraseña debe tener al menos 6 caracteres, con letras y números.")
                 continue
             break
-        
-    usuarios[email] = {"nombre": nombre, "password": password}
+    
+    # Encripto contraseña usando sha256 para mayor seguridad
+    encripted_password = hashlib.sha256(password.encode()).hexdigest()
+    usuarios[email] = {"nombre": nombre, "password": encripted_password}
     guardar_usuarios(usuarios)
+    
     print(Fore.GREEN + "✅ Registro exitoso.")
     
 def login(usuarios:dict) -> None:
     """login"""
     email = input("Ingrese su email: ").strip().lower()
     password = input("Ingrese su contraseña: ").strip()
-    if email in usuarios and usuarios[email]['password'] == password:
+    
+    
+    encripted_password = hashlib.sha256(password.encode()).hexdigest()
+    if email in usuarios and usuarios[email]['password'] == encripted_password:
         print(Fore.GREEN + f"✅ Bienvenido, {usuarios[email]['nombre']}!")
     else:
         print(Fore.RED + "❌ Email o contraseña incorrectos.")
@@ -72,10 +80,26 @@ def ver_datos(usuarios:dict) -> None:
 def menu() -> None:
     usuarios = cargar_usuarios()
     while True:
-        print("Sistema de login")
-        print()
-        pass
+        print(Fore.MAGENTA  + "\n=== Sistema de Login ===")
+        print(Fore.CYAN + "1. Registrarse")
+        print(Fore.LIGHTBLACK_EX + "2. Login")   
+        print(Fore.CYAN + "3. Ver Datos")
+        print(Fore.CYAN + "4. Salir")
+        print(Fore.CYAN + "5. CARGA DATOS DEBUG")
+        opcion = input(Fore.YELLOW + "Seleccione una opción: ")
+        if opcion == "1":
+            registrarse(usuarios)
+        elif opcion == "2":
+            login(usuarios)
+        elif opcion == "3":
+            ver_datos(usuarios)
+        elif opcion == "4":
+            print(Fore.GREEN + "Saliendo del sistema. ¡Hasta luego!")
+            break
+        elif opcion == "5":
+            cargar_usuarios()
+        else:
+            print(Fore.RED + "Opción inválida. Intente nuevamente.")
         
-        
-if __name__ == 'main':
+if __name__ == '__main__':
         menu()

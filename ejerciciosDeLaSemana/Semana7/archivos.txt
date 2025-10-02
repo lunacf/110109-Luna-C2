@@ -1,0 +1,10 @@
+{
+    "facundo@gmail.com": {
+        "nombre": "Hola",
+        "password": "asldksam3"
+    },
+    "fa@gmail.com": {
+        "nombre": "Prueba",
+        "password": "5614312ddd09296574f621725989d0cf20e65f5714f52302bd81e97c118d3aff"
+    }
+}
