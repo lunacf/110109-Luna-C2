@@ -50,7 +50,14 @@ def registrarse(usuarios: dict) -> None:
     print(Fore.GREEN + "✅ Registro exitoso.")
     
 def login(usuarios:dict) -> None:
-    pass
+    """login"""
+    email = input("Ingrese su email: ").strip().lower()
+    password = input("Ingrese su contraseña: ").strip()
+    if email in usuarios and usuarios[email]['password'] == password:
+        print(Fore.GREEN + f"✅ Bienvenido, {usuarios[email]['nombre']}!")
+    else:
+        print(Fore.RED + "❌ Email o contraseña incorrectos.")
+    
 
 def ver_datos(usuarios:dict) -> None:
     """ver datos"""

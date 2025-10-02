@@ -1,5 +1,5 @@
 # Tarifa base:
-#Todas las facturas incluyen un cargo fijo de $7000 además del costo por consumo.
+#Todas las facturas incluyen un cargo fijo de $7000 ademas del costo por consumo.
 
 # Sistema de Facturación de Agua Potable
 print("SISTEMA DE FACTURACIÓN DE AGUA POTABLE")
@@ -55,10 +55,10 @@ elif tipo_cliente == "industrial":
         recargo = costo_consumo * 0.10
 
 else:
-    print("ERROR: Tipo de cliente no válido. Use: Residencial, Comercial o Industrial")
+    print("ERROR: Tipo de cliente no valido. Use: Residencial, Comercial o Industrial")
     exit()
 
-# Cálculos finales
+# Calculos finales
 subtotal_con_ajustes = subtotal_base - bonificacion + recargo - descuento_especial
 iva = subtotal_con_ajustes * 0.21
 total_pagar = subtotal_con_ajustes + iva
