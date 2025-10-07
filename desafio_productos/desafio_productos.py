@@ -25,6 +25,7 @@ def compararUsuariosV1(usuario1, usuario2):
         "exclusivos": [], # diferencia
         "total": [] # union
     }
+    
     for item in usuario1:
         if item in usuario2:
             dictComparaciones["comun"].append(item)
@@ -70,4 +71,6 @@ def compararUsuariosv2(**usuarios):
     #     {"en_comun": [manteca, leche, huevos, azucar], "exclusivos": [harina, chocolate], "total": [manteca, leche, huevos, azucar, harina, chocolate]}
     # ]
 
-compararUsuarios(usuario, usuario2)
+compararUsuariosV1(usuario, usuario2)
+
+
