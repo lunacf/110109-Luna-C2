@@ -5,98 +5,6 @@ current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
 from biblioteca.input import get_int
-from biblioteca.especificas import es_impar, es_par, es_negativo, es_positivo
-
-def _validar_que_tenga_numeros(numeros: list[int]) -> None:
-    if len(numeros) == 0:
-        raise ValueError("No hay numeros cargados, por favor ingrese numeros primero")
-
-if __name__ == "__main__":
-    assert _validar_que_tenga_numeros([1, 2, 3]) is None
-    try:
-        _validar_que_tenga_numeros([])
-        assert False
-    except ValueError as ve:
-        assert str(ve) == "No hay numeros cargados, por favor ingrese numeros primero"
-
-# 1- ingresar numeros -> funcion de ingresar numeros por pantalla
-#    ingresar 10 numeros
-#    numero sea entre -1000 y 1000
-def ingresar_numeros(numeros: list[int]) -> None:
-    print("Ingrese 10 numeros:")
-    for i in range(10):
-        numero = get_int(f"    {i + 1} - Ingrese un numero entre -1000 y 1000: ", "Superaste la cantidad de reintentos", -1000, 1000, 3)
-        if numero is not None:
-            numeros.append(numero)
-        else:
-            print(f"    Se procede a usar los {len(numeros)} numeros cargados previamente")
-            return
-
-# 2- contar positivos y negativos -> funcion de contar positivos y negativos
-#    necesitas los numeros
-#    iterar los numeros e ir contando por separado
-def contar_positivos_y_negativos(numeros: list[int]) -> None:
-    _validar_que_tenga_numeros(numeros)
-    cantidad_positivos = 0
-    cantidad_negativos = 0
-    for numero in numeros:
-        if es_negativo(numero):
-            cantidad_negativos += 1
-        else:
-            cantidad_positivos += 1
-    print(f"    Cantidad de numeros positivos: {cantidad_positivos}")
-    print(f"    Cantidad de numeros negativos: {cantidad_negativos}")
-
-# 3- suma de pares -> funcion de sumar pares
-#    necesitas los numeros
-#    iterar los numeros y sumar solo si es par
-def sumar_pares(numeros: list[int]) -> None:
-    _validar_que_tenga_numeros(numeros)
-    suma_pares = 0
-    for numero in numeros:
-        if es_par(numero):
-            suma_pares += numero
-    print(f"    Suma de numeros pares: {suma_pares}")
-
-# 4- mayor numero impar -> funcion de mayor impar
-#    necesitas los numeros
-#    variable que guarde el mayor numero impar
-#    iterar los numeros y checkear si es impar y si es mayor al guardado
-def mayor_impar(numeros: list[int]) -> None:
-    _validar_que_tenga_numeros(numeros)
-    impar_mas_grande: int = None
-    for numero in numeros:
-        if es_impar(numero) and (impar_mas_grande is None or numero > impar_mas_grande):
-            impar_mas_grande = numero
-    print(f"    El numero impar mas grande es: {impar_mas_grande}")
-            
-
-# 5- listar numeros -> funcion de listar numeros
-#    necesitas los numeros
-#    iterar los numeros y mostrarlos (print)
-def listar_numeros(numeros: list[int]) -> None:
-    _validar_que_tenga_numeros(numeros)
-    for numero in numeros:
-        print(f"    {numero}")
-
-# 6- listar los numeros pares -> funcion de listar pares
-#    necesitas los numeros
-#    iterar los numeros y, si es par, lo mostras (print)
-def listar_numeros_pares(numeros: list[int]) -> None:
-    _validar_que_tenga_numeros(numeros)
-    for numero in numeros:
-        if es_par(numero):
-            print(f"    {numero}")
-
-# 7- listar numeros en posiciones (index/i) impares -> funcion de listar en posiciones impares
-#    necesitas los numeros
-#    iterar los numeros y, si el index (i) es impar, lo mostras (print)
-def listar_numeros_posiciones_impares(numeros: list[int]) -> None:
-    _validar_que_tenga_numeros(numeros)
-    for i in range(len(numeros)):
-        if es_impar(i):
-            print(f"    {numeros[i]}")
-
 
 """
 Opción 1. Cargar equipos
@@ -112,6 +20,11 @@ Si el archivo ya existe, preguntar:
 “¿Desea reemplazar los datos existentes o agregar nuevos equipos?”
 
 """
+import time
+def p(message: str) -> None:
+  for letter in message:
+    print(letter, end='', flush=True)
+    time.sleep(0.01)
 
 import colorama
 colorama.init()
@@ -119,20 +32,22 @@ colorama.init()
 def cargar_equipos(equipos: list[dict]) -> None:
     print(colorama.Fore.BLUE + "Cargar equipos")
     
-    # Verificar si el archivo existe
+    # Verifico si el archivo existe
     if os.path.exists("equipos.csv"):
         opcion = get_int("El archivo equipos.csv ya existe. ¿Desea reemplazar los datos existentes (1) o agregar nuevos equipos (2)? ", "Opción no válida. Ingrese 1 o 2.", 1, 2, 3)
         if opcion is None:
-            print("Se cancela la operación de carga de equipos.")
+            print("Se cancela la operacion de carga de equipos.")
             return
+        
         if opcion == 1:
-            # Limpiar la lista y crear archivo nuevo
+            # Limpio la lista y creo archivo nuevo
             equipos.clear()
             with open("equipos.csv", "w", newline='') as file:
                 writer = csv.writer(file)
                 writer.writerow(["id", "nombre", "categoria", "estado", "valor"])
+        
         elif opcion == 2:
-            # Cargar equipos existentes del archivo
+            # Cargo equipos existentes del archivo
             with open("equipos.csv", "r") as file:
                 reader = csv.DictReader(file)
                 equipos.clear()  # Limpiar la lista actual
@@ -145,22 +60,22 @@ def cargar_equipos(equipos: list[dict]) -> None:
                         'valor': float(row['valor'])
                     })
     else:
-        # Si no existe el archivo, crear uno nuevo
+        # Si no existe el archivo, creo uno nuevo
         with open("equipos.csv", "w", newline='') as file:
             writer = csv.writer(file)
             writer.writerow(["id", "nombre", "categoria", "estado", "valor"])
     
-    # Ahora permitir agregar nuevos equipos
+    # Creo equipos nuevos ya sea que el archivo no existia o se eligio agregar nuevos equipos
     while True:
         print("\n--- Agregar nuevo equipo ---")
         
-        # Generar ID automáticamente
+        # Genero ID autoincremental
         if len(equipos) == 0:
             nuevo_id = 1
         else:
             nuevo_id = max(equipo['id'] for equipo in equipos) + 1
         
-        # Solicitar datos del equipo
+        # Solicito datos del equipo
         from biblioteca.input import get_string, get_float
         
         nombre = get_string("Ingrese el nombre del equipo: ", "Nombre no válido", 2, 50, 3)
@@ -183,7 +98,6 @@ def cargar_equipos(equipos: list[dict]) -> None:
             print("Se cancela la carga del equipo.")
             break
         
-        # Crear el equipo
         nuevo_equipo = {
             'id': nuevo_id,
             'nombre': nombre,
@@ -192,10 +106,10 @@ def cargar_equipos(equipos: list[dict]) -> None:
             'valor': valor
         }
         
-        # Agregar a la lista
+        # Agrego a la lista
         equipos.append(nuevo_equipo)
         
-        # Guardar en el archivo CSV
+        # Guardo en el archivo CSV
         with open("equipos.csv", "a", newline='') as file:
             writer = csv.writer(file)
             writer.writerow([nuevo_id, nombre, categoria, estado, valor])
