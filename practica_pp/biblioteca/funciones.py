@@ -30,7 +30,7 @@ import colorama
 colorama.init()
 
 def cargar_equipos(equipos: list[dict]) -> None:
-    print(colorama.Fore.BLUE + "Cargar equipos")
+    print(colorama.Fore.CYAN + colorama.Style.BRIGHT + "🔧 CARGAR EQUIPOS" + colorama.Style.RESET_ALL)
     
     # Verifico si el archivo existe
     if os.path.exists("equipos.csv"):
@@ -52,6 +52,7 @@ def cargar_equipos(equipos: list[dict]) -> None:
                 reader = csv.DictReader(file)
                 equipos.clear()  # Limpiar la lista actual
                 for row in reader:
+                    # 
                     equipos.append({
                         'id': int(row['id']),
                         'nombre': row['nombre'],
@@ -73,6 +74,7 @@ def cargar_equipos(equipos: list[dict]) -> None:
         if len(equipos) == 0:
             nuevo_id = 1
         else:
+            # Obtengo el ID máximo existente
             nuevo_id = max(equipo['id'] for equipo in equipos) + 1
         
         # Solicito datos del equipo
@@ -117,7 +119,7 @@ def cargar_equipos(equipos: list[dict]) -> None:
         print(f"Equipo '{nombre}' agregado exitosamente con ID {nuevo_id}")
         
         # Preguntar si desea agregar otro equipo
-        continuar = get_int("¿Desea agregar otro equipo? (1=Sí, 2=No): ", "Opción no válida", 1, 2, 3)
+        continuar = get_int("¿Desea agregar otro equipo? (1.Sí, 2.No): ", "Opción no válida", 1, 2, 3)
         if continuar != 1:
             break
     
@@ -125,11 +127,29 @@ def cargar_equipos(equipos: list[dict]) -> None:
                 
 def mostrar_equipos(lista_equipos: list[dict]) -> None:
     if len(lista_equipos) == 0:
-        print("No hay equipos cargados.")
+        print(colorama.Fore.RED + "❌ No hay equipos cargados." + colorama.Style.RESET_ALL)
         return
-    print("Inventario de equipos:")
+    
+    print(colorama.Fore.GREEN + colorama.Style.BRIGHT + "📋 INVENTARIO DE EQUIPOS" + colorama.Style.RESET_ALL)
+    print(colorama.Fore.YELLOW + "=" * 80 + colorama.Style.RESET_ALL)
+    
     for equipo in lista_equipos:
-        print(f"ID: {equipo['id']}, Nombre: {equipo['nombre']}, Categoría: {equipo['categoria']}, Estado: {equipo['estado']}, Valor: ${equipo['valor']:.2f}")
+        # Color según el estado
+        if equipo['estado'].lower() in ['nuevo', 'funcional']:
+            color_estado = colorama.Fore.GREEN
+        elif equipo['estado'].lower() in ['usado']:
+            color_estado = colorama.Fore.YELLOW
+        else:  # dañado, fuera de servicio
+            color_estado = colorama.Fore.RED
+            
+        print(f"{colorama.Fore.CYAN}ID: {equipo['id']:3d}{colorama.Style.RESET_ALL} | "
+              f"{colorama.Fore.BLUE}Nombre: {equipo['nombre']:<20}{colorama.Style.RESET_ALL} | "
+              f"{colorama.Fore.MAGENTA}Categoría: {equipo['categoria']:<12}{colorama.Style.RESET_ALL} | "
+              f"{color_estado}Estado: {equipo['estado']:<15}{colorama.Style.RESET_ALL} | "
+              f"{colorama.Fore.GREEN}Valor: ${equipo['valor']:>8.2f}{colorama.Style.RESET_ALL}")
+    
+    print(colorama.Fore.YELLOW + "=" * 80 + colorama.Style.RESET_ALL)
+    print(f"{colorama.Fore.WHITE}Total de equipos: {len(lista_equipos)}{colorama.Style.RESET_ALL}")
         
 def buscar_equipo(lista_equipos: list[dict]) -> None:
     if len(lista_equipos) == 0:
@@ -178,30 +198,92 @@ def ordenar_por_valor(lista_equipos: list[dict]) -> None:
         print("No hay equipos cargados.")
         return
     equipos_ordenados = sorted(lista_equipos, key=lambda x: x['valor'], reverse=True)
-    print("Equipos ordenados por valor (de mayor a menor):")
+    print(f"{colorama.Fore.BLUE}Equipos ordenados por valor (de mayor a menor):{colorama.Style.RESET_ALL}")
     for equipo in equipos_ordenados:
-        print(f"ID: {equipo['id']}, Nombre: {equipo['nombre']}, Categoria: {equipo['categoria']}, Estado: {equipo['estado']}, Valor: ${equipo['valor']:.2f}")
-        
+        print(f"{colorama.Fore.BLUE}ID: {equipo['id']}{colorama.Style.RESET_ALL}, "
+              f"{colorama.Fore.CYAN}Nombre: {equipo['nombre']}{colorama.Style.RESET_ALL}, "
+              f"{colorama.Fore.MAGENTA}Categoria: {equipo['categoria']}{colorama.Style.RESET_ALL}, "
+              f"{colorama.Fore.YELLOW}Estado: {equipo['estado']}{colorama.Style.RESET_ALL}, "
+              f"{colorama.Fore.GREEN}Valor: ${equipo['valor']:.2f}{colorama.Style.RESET_ALL}")
+
 def generar_informe(lista_equipos: list[dict]) -> None:
     if len(lista_equipos) == 0:
-        print("No hay equipos cargados.")
+        print(colorama.Fore.RED + "❌ No hay equipos cargados para generar el informe." + colorama.Style.RESET_ALL)
         return
+    
     try:
-        with open("informe.txt", "w") as file:
-            file.write("Informe de Inventario de Equipos\n")
-            file.write("="*40 + "\n")
+        from datetime import datetime
+        fecha_actual = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        
+        with open("informe_inventario.txt", "w", encoding="utf-8") as file:
+            # Encabezado del informe
+            file.write("=" * 80 + "\n")
+            file.write("                    INFORME DE INVENTARIO DE EQUIPOS\n")
+            file.write("=" * 80 + "\n")
+            file.write(f"Fecha de generación: {fecha_actual}\n")
+            file.write(f"Total de equipos registrados: {len(lista_equipos)}\n\n")
+            
+            # Listado detallado de equipos
+            file.write("LISTADO DETALLADO DE EQUIPOS:\n")
+            file.write("-" * 80 + "\n")
+            file.write(f"{'ID':<4} | {'NOMBRE':<25} | {'CATEGORÍA':<12} | {'ESTADO':<15} | {'VALOR':<10}\n")
+            file.write("-" * 80 + "\n")
+            
             for equipo in lista_equipos:
-                file.write(f"ID: {equipo['id']}, Nombre: {equipo['nombre']}, Categoria: {equipo['categoria']}, Estado: {equipo['estado']}, Valor: ${equipo['valor']:.2f}\n")
+                file.write(f"{equipo['id']:<4} | {equipo['nombre']:<25} | {equipo['categoria']:<12} | {equipo['estado']:<15} | ${equipo['valor']:<9.2f}\n")
+            
+            file.write("-" * 80 + "\n\n")
+            
+            # Estadísticas del inventario
+            file.write("ESTADÍSTICAS DEL INVENTARIO:\n")
+            file.write("-" * 40 + "\n")
+            
             total_equipos = len(lista_equipos)
             valor_total = sum(equipo['valor'] for equipo in lista_equipos)
-            valor_promedio = valor_total / total_equipos
-            file.write("\n")
+            valor_promedio = valor_total / total_equipos if total_equipos > 0 else 0
+            
+            # Estadísticas por categoría
+            categorias = {}
+            for equipo in lista_equipos:
+                cat = equipo['categoria']
+                if cat not in categorias:
+                    categorias[cat] = {'cantidad': 0, 'valor_total': 0}
+                categorias[cat]['cantidad'] += 1
+                categorias[cat]['valor_total'] += equipo['valor']
+            
+            # Estadísticas por estado
+            estados = {}
+            for equipo in lista_equipos:
+                est = equipo['estado']
+                if est not in estados:
+                    estados[est] = 0
+                estados[est] += 1
+            
             file.write(f"Total de equipos: {total_equipos}\n")
             file.write(f"Valor total del inventario: ${valor_total:.2f}\n")
-            file.write(f"Valor promedio por equipo: ${valor_promedio:.2f}\n")
-        print("Informe generado exitosamente en 'informe.txt'.")
+            file.write(f"Valor promedio por equipo: ${valor_promedio:.2f}\n\n")
+            
+            file.write("DISTRIBUCIÓN POR CATEGORÍAS:\n")
+            for categoria, datos in categorias.items():
+                file.write(f"  - {categoria}: {datos['cantidad']} equipos (${datos['valor_total']:.2f})\n")
+            
+            file.write(f"\nDISTRIBUCIÓN POR ESTADOS:\n")
+            for estado, cantidad in estados.items():
+                porcentaje = (cantidad / total_equipos) * 100
+                file.write(f"  - {estado}: {cantidad} equipos ({porcentaje:.1f}%)\n")
+            
+            file.write("\n" + "=" * 80 + "\n")
+            file.write("Informe generado por Sistema de Inventario v1.0\n")
+            file.write("=" * 80 + "\n")
+        
+        print(colorama.Fore.GREEN + "✅ Informe generado exitosamente en 'informe_inventario.txt'" + colorama.Style.RESET_ALL)
+        
     except Exception as e:
-        print(f"Error al generar el informe: {e}")
+        print(colorama.Fore.RED + f"❌ Error al generar el informe: {e}" + colorama.Style.RESET_ALL)
 
-def salir(numeros: list[int]) -> None:
-    print("Saliendo del programa...")
+
+def salir(equipos: list[dict]) -> None:
+    print(f"{colorama.Fore.YELLOW}🔄 Cerrando el sistema...{colorama.Style.RESET_ALL}")
+    if len(equipos) > 0:
+        print(f"{colorama.Fore.GREEN}💾 Se han guardado {len(equipos)} equipos en el inventario.{colorama.Style.RESET_ALL}")
+    print(f"{colorama.Fore.CYAN}✨ Sistema cerrado correctamente. ¡Hasta pronto!{colorama.Style.RESET_ALL}")
