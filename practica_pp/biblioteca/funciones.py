@@ -1,25 +1,13 @@
 import sys
 import os
 import csv
+
+from practica_pp.biblioteca.menu import mostrar_menu
 current = os.path.dirname(os.path.realpath(__file__))
 parent = os.path.dirname(current)
 sys.path.append(parent)
 from biblioteca.input import get_int
 
-"""
-Opción 1. Cargar equipos
-Permitir ingresar N equipos (cantidad pedida al usuario).
-Cada equipo se representa con un diccionario con las claves:
-"id" (entero autoincremental),
-"nombre",
-"categoria" (router, pc, notebook, impresora),
-"estado" (funcional o fuera de servicio),
-"valor" (float, validado como número positivo).
-Los datos se guardan en una lista y también en el archivo equipos.csv.
-Si el archivo ya existe, preguntar:
-“¿Desea reemplazar los datos existentes o agregar nuevos equipos?”
-
-"""
 import time
 def p(message: str) -> None:
   for letter in message:
@@ -38,7 +26,7 @@ def cargar_equipos(equipos: list[dict]) -> None:
         if opcion is None:
             print("Se cancela la operacion de carga de equipos.")
             return
-        
+        # la opcion 1 
         if opcion == 1:
             # Limpio la lista y creo archivo nuevo
             equipos.clear()
@@ -68,7 +56,7 @@ def cargar_equipos(equipos: list[dict]) -> None:
     
     # Creo equipos nuevos ya sea que el archivo no existia o se eligio agregar nuevos equipos
     while True:
-        print("\n--- Agregar nuevo equipo ---")
+        print(f"{colorama.Fore.CYAN}\n--- Agregar nuevo equipo ---{colorama.Style.RESET_ALL}")
         
         # Genero ID autoincremental
         if len(equipos) == 0:
@@ -79,23 +67,35 @@ def cargar_equipos(equipos: list[dict]) -> None:
         
         # Solicito datos del equipo
         from biblioteca.input import get_string, get_float
-        
-        nombre = get_string("Ingrese el nombre del equipo: ", "Nombre no válido", 2, 50, 3)
+
+        nombre = get_string(f"{colorama.Fore.CYAN}Ingrese el nombre del equipo: {colorama.Style.RESET_ALL}", "Nombre no válido", 2, 50, 3)
         if nombre is None:
             print("Se cancela la carga del equipo.")
             break
 
-        categoria = get_string("Ingrese la categoria del equipo (router, pc, notebook, impresora): ", "Categoria no válida", 2, 30, 3)
-        if categoria is None:
+        categorias = ["router", "pc", "notebook", "impresora"]
+
+        categoria_index = mostrar_menu(f"{colorama.Fore.CYAN}Ingrese la categoria del equipo: {colorama.Style.RESET_ALL}", categorias)
+
+        if categoria_index is None:
             print("Se cancela la carga del equipo.")
             break
-            
-        estado = get_string("Ingrese el estado del equipo (Nuevo/Usado/Dañado): ", "Estado no válido", 4, 15, 3)
-        if estado is None:
+        
+        categoria = categorias[categoria_index]
+        
+        estados_display = [f"{colorama.Fore.RED}Nuevo{colorama.Style.RESET_ALL}", 
+                          f"{colorama.Fore.YELLOW}Usado{colorama.Style.RESET_ALL}", 
+                          f"{colorama.Fore.RED}Dañado{colorama.Style.RESET_ALL}"]
+        estados_clean = ["Nuevo", "Usado", "Dañado"]
+        
+        estado_index = mostrar_menu("Ingrese el estado del equipo: ", estados_display)
+        
+        if estado_index is None:
             print("Se cancela la carga del equipo.")
             break
-            
-        valor = get_float("Ingrese el valor del equipo: $", "Valor no válido", 0, 999999, 3)
+        estado = estados_clean[estado_index]
+
+        valor = get_float(f"{colorama.Fore.CYAN}Ingrese el valor del equipo: ${colorama.Style.RESET_ALL}", "Valor no válido", 0, 999999, 3)
         if valor is None:
             print("Se cancela la carga del equipo.")
             break
@@ -131,7 +131,7 @@ def mostrar_equipos(lista_equipos: list[dict]) -> None:
         return
     
     print(colorama.Fore.GREEN + colorama.Style.BRIGHT + "📋 INVENTARIO DE EQUIPOS" + colorama.Style.RESET_ALL)
-    print(colorama.Fore.YELLOW + "=" * 80 + colorama.Style.RESET_ALL)
+    print(colorama.Fore.YELLOW + "=" * 110 + colorama.Style.RESET_ALL)
     
     for equipo in lista_equipos:
         # Color según el estado
@@ -148,7 +148,7 @@ def mostrar_equipos(lista_equipos: list[dict]) -> None:
               f"{color_estado}Estado: {equipo['estado']:<15}{colorama.Style.RESET_ALL} | "
               f"{colorama.Fore.GREEN}Valor: ${equipo['valor']:>8.2f}{colorama.Style.RESET_ALL}")
     
-    print(colorama.Fore.YELLOW + "=" * 80 + colorama.Style.RESET_ALL)
+    print(colorama.Fore.YELLOW + "=" * 110 + colorama.Style.RESET_ALL)
     print(f"{colorama.Fore.WHITE}Total de equipos: {len(lista_equipos)}{colorama.Style.RESET_ALL}")
         
 def buscar_equipo(lista_equipos: list[dict]) -> None:
@@ -178,33 +178,87 @@ def estadisticas(lista_equipos: list[dict]) -> None:
     
 def filtrar_por_categoria(lista_equipos: list[dict]) -> None:
     if len(lista_equipos) == 0:
-        print("No hay equipos cargados.")
+        print(colorama.Fore.RED + "❌ No hay equipos cargados." + colorama.Style.RESET_ALL)
         return
-    categoria = input("Ingrese la categoría a filtrar (router, pc, notebook, impresora): ").strip().lower()
-    categorias_validas = {"router", "pc", "notebook", "impresora"}
-    if categoria not in categorias_validas:
-        print("Categoría no válida.")
+    
+    categorias = ["router", "pc", "notebook", "impresora"]
+    categoria_index = mostrar_menu(f"{colorama.Fore.CYAN}Seleccione la categoría a filtrar:{colorama.Style.RESET_ALL}", categorias)
+    
+    if categoria_index is None:
+        print("Operación cancelada.")
         return
-    equipos_filtrados = [equipo for equipo in lista_equipos if equipo['categoria'] == categoria]
+        
+    categoria = categorias[categoria_index]
+    equipos_filtrados = [equipo for equipo in lista_equipos if equipo['categoria'].lower() == categoria.lower()]
+    
     if not equipos_filtrados:
-        print(f"No hay equipos en la categoría '{categoria}'.")
+        print(colorama.Fore.RED + f"❌ No hay equipos en la categoría '{categoria}'." + colorama.Style.RESET_ALL)
         return
-    print(f"Equipos en la categoría '{categoria}':")
+    
+    print(colorama.Fore.GREEN + colorama.Style.BRIGHT + f"📋 EQUIPOS - CATEGORÍA: {categoria.upper()}" + colorama.Style.RESET_ALL)
+    print(colorama.Fore.YELLOW + "=" * 110 + colorama.Style.RESET_ALL)
+    
     for equipo in equipos_filtrados:
-        print(f"ID: {equipo['id']}, Nombre: {equipo['nombre']}, Estado: {equipo['estado']}, Valor: ${equipo['valor']:.2f}")
+        # Color según el estado
+        if equipo['estado'].lower() in ['nuevo', 'funcional']:
+            color_estado = colorama.Fore.GREEN
+        elif equipo['estado'].lower() in ['usado']:
+            color_estado = colorama.Fore.YELLOW
+        else:  # dañado, fuera de servicio
+            color_estado = colorama.Fore.RED
+            
+        print(f"{colorama.Fore.CYAN}ID: {equipo['id']:3d}{colorama.Style.RESET_ALL} | "
+              f"{colorama.Fore.BLUE}Nombre: {equipo['nombre']:<20}{colorama.Style.RESET_ALL} | "
+              f"{colorama.Fore.MAGENTA}Categoría: {equipo['categoria']:<12}{colorama.Style.RESET_ALL} | "
+              f"{color_estado}Estado: {equipo['estado']:<15}{colorama.Style.RESET_ALL} | "
+              f"{colorama.Fore.GREEN}Valor: ${equipo['valor']:>8.2f}{colorama.Style.RESET_ALL}")
+    
+    print(colorama.Fore.YELLOW + "=" * 110 + colorama.Style.RESET_ALL)
+    print(f"{colorama.Fore.WHITE}Total de equipos: {len(equipos_filtrados)}{colorama.Style.RESET_ALL}")
 
 def ordenar_por_valor(lista_equipos: list[dict]) -> None:
     if len(lista_equipos) == 0:
-        print("No hay equipos cargados.")
+        print(colorama.Fore.RED + "❌ No hay equipos cargados." + colorama.Style.RESET_ALL)
         return
-    equipos_ordenados = sorted(lista_equipos, key=lambda x: x['valor'], reverse=True)
-    print(f"{colorama.Fore.BLUE}Equipos ordenados por valor (de mayor a menor):{colorama.Style.RESET_ALL}")
+    
+    opciones_orden = [
+        f"{colorama.Fore.GREEN}Mayor a menor valor{colorama.Style.RESET_ALL}",
+        f"{colorama.Fore.BLUE}Menor a mayor valor{colorama.Style.RESET_ALL}"
+    ]
+    
+    orden_index = mostrar_menu(f"{colorama.Fore.CYAN}Seleccione el orden:{colorama.Style.RESET_ALL}", opciones_orden)
+    
+    if orden_index is None:
+        print("Operación cancelada.")
+    
+        return
+    
+    # True = de mayor a menor, False = de menor a mayor
+    reverso = orden_index == 0
+    equipos_ordenados = sorted(lista_equipos, key=lambda x: x['valor'], reverse=reverso)
+    
+    titulo = "EQUIPOS ORDENADOS POR VALOR (MAYOR A MENOR)" if reverso else "EQUIPOS ORDENADOS POR VALOR (MENOR A MAYOR)"
+    
+    print(colorama.Fore.GREEN + colorama.Style.BRIGHT + f"📋 {titulo}" + colorama.Style.RESET_ALL)
+    print(colorama.Fore.YELLOW + "=" * 110 + colorama.Style.RESET_ALL)
+    
     for equipo in equipos_ordenados:
-        print(f"{colorama.Fore.BLUE}ID: {equipo['id']}{colorama.Style.RESET_ALL}, "
-              f"{colorama.Fore.CYAN}Nombre: {equipo['nombre']}{colorama.Style.RESET_ALL}, "
-              f"{colorama.Fore.MAGENTA}Categoria: {equipo['categoria']}{colorama.Style.RESET_ALL}, "
-              f"{colorama.Fore.YELLOW}Estado: {equipo['estado']}{colorama.Style.RESET_ALL}, "
-              f"{colorama.Fore.GREEN}Valor: ${equipo['valor']:.2f}{colorama.Style.RESET_ALL}")
+        # Color según el estado
+        if equipo['estado'].lower() in ['nuevo', 'funcional']:
+            color_estado = colorama.Fore.GREEN
+        elif equipo['estado'].lower() in ['usado']:
+            color_estado = colorama.Fore.YELLOW
+        else:  # dañado, fuera de servicio
+            color_estado = colorama.Fore.RED
+            
+        print(f"{colorama.Fore.CYAN}ID: {equipo['id']:3d}{colorama.Style.RESET_ALL} | "
+              f"{colorama.Fore.BLUE}Nombre: {equipo['nombre']:<20}{colorama.Style.RESET_ALL} | "
+              f"{colorama.Fore.MAGENTA}Categoría: {equipo['categoria']:<12}{colorama.Style.RESET_ALL} | "
+              f"{color_estado}Estado: {equipo['estado']:<15}{colorama.Style.RESET_ALL} | "
+              f"{colorama.Fore.GREEN}Valor: ${equipo['valor']:>8.2f}{colorama.Style.RESET_ALL}")
+    
+    print(colorama.Fore.YELLOW + "=" * 110 + colorama.Style.RESET_ALL)
+    print(f"{colorama.Fore.WHITE}Total de equipos: {len(equipos_ordenados)}{colorama.Style.RESET_ALL}")
 
 def generar_informe(lista_equipos: list[dict]) -> None:
     if len(lista_equipos) == 0:
@@ -226,6 +280,7 @@ def generar_informe(lista_equipos: list[dict]) -> None:
             # Listado detallado de equipos
             file.write("LISTADO DETALLADO DE EQUIPOS:\n")
             file.write("-" * 80 + "\n")
+            # que es esto? 
             file.write(f"{'ID':<4} | {'NOMBRE':<25} | {'CATEGORÍA':<12} | {'ESTADO':<15} | {'VALOR':<10}\n")
             file.write("-" * 80 + "\n")
             
@@ -265,16 +320,13 @@ def generar_informe(lista_equipos: list[dict]) -> None:
             
             file.write("DISTRIBUCIÓN POR CATEGORÍAS:\n")
             for categoria, datos in categorias.items():
-                file.write(f"  - {categoria}: {datos['cantidad']} equipos (${datos['valor_total']:.2f})\n")
+                file.write(f"- {categoria}: {datos['cantidad']} equipos (${datos['valor_total']:.2f})\n")
             
             file.write(f"\nDISTRIBUCIÓN POR ESTADOS:\n")
             for estado, cantidad in estados.items():
                 porcentaje = (cantidad / total_equipos) * 100
-                file.write(f"  - {estado}: {cantidad} equipos ({porcentaje:.1f}%)\n")
-            
-            file.write("\n" + "=" * 80 + "\n")
-            file.write("Informe generado por Sistema de Inventario v1.0\n")
-            file.write("=" * 80 + "\n")
+                file.write(f"- {estado}: {cantidad} equipos ({porcentaje:.1f}%)\n")
+
         
         print(colorama.Fore.GREEN + "✅ Informe generado exitosamente en 'informe_inventario.txt'" + colorama.Style.RESET_ALL)
         
